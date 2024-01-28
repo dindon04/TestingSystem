@@ -161,6 +161,7 @@ public:
         file.close();
     }
 
+
 private:
     static string encryptPassword(const string& password)
     {
@@ -206,7 +207,7 @@ public:
     static User registerUser()
     {
         User newUser;
-        cout << "Enter your full name: ";
+        cout << "Enter your name: ";
         cin.ignore();
         getline(cin, newUser.fullName);
         cout << "Enter your address: ";
@@ -239,7 +240,7 @@ public:
             {
                 if (!isdigit(c))
                 {
-                    cout << "Please enter a password containing only digits: ";
+                    cout << "enter password containing only digits: ";
                     validPassword = false;
                     break;
                 }
@@ -480,9 +481,10 @@ private:
     }
 };
 
-int main() {
+int main()
+{
     vector<User> users;
-    char choice;
+    int select;
 
     Admin admin = Admin::readAdminFromFile("admin.txt");
 
@@ -493,37 +495,45 @@ int main() {
         cout << "3. Admin Login" << endl;
         cout << "4. Exit" << endl;
         cout << "enter your choice: ";
-        cin >> choice;
+        cin >> select;
 
-        switch (choice)
+        switch (select)
         {
-        case '1':
+        case 1:
         {
             User currentUser = User::loginUser(users);
+
             if (!currentUser.username.empty())
             {
                 system("cls");
+
                 Test test;
                 test.loadQuestionsFromFile("tests.txt");
                 currentUser.takeTest(test);
             }
         }
         break;
-        case '2':
+
+        case 2:
         {
             User newUser = User::registerUser();
             users.push_back(newUser);
-            ofstream usersOutputFile("users.txt", ios::app);
-            if (!usersOutputFile.is_open()) {
-                cerr << "error opening file users.txt" << endl;
+            ofstream usersOutputFile("users.txt", ios::app); //open file and write to this file
+
+            if (!usersOutputFile.is_open())
+            {
+                cout << "error opening file users.txt" << endl;
                 return 1;
             }
+
             usersOutputFile << newUser.username << ',' << newUser.encryptedPassword << ',' << newUser.fullName
                 << ',' << newUser.address << ',' << newUser.phoneNumber << '\n';
+
             usersOutputFile.close();
         }
         break;
-        case '3':
+
+        case 3:
         {
             string adminPassword;
             cout << "Enter admin password: ";
@@ -532,49 +542,54 @@ int main() {
             if (Admin::authenticateAdmin(admin, adminPassword))
             {
                 cout << "admin login successful!" << endl;
-                char adminChoice;
+                int adminSelect;
+
                 do
                 {
                     cout << "1. View Results" << endl;
                     cout << "2. Add Question" << endl;
                     cout << "3. Logout" << endl;
                     cout << "enter your choice: ";
-                    cin >> adminChoice;
+                    cin >> adminSelect;
 
-                    switch (adminChoice)
+                    switch (adminSelect)
                     {
-                    case '1':
+                    case 1:
                         admin.viewResults("results.txt");
                         break;
-                    case '2':
+
+                    case 2:
                     {
                         string newQuestion;
+
                         cout << "enter new question(category,subcategory,question,1-4 answers,correct answer): ";
+
                         cin.ignore(); //clear symbols in buffer (\n)
                         getline(cin, newQuestion);
                         admin.addQuestion(newQuestion, "tests.txt");
                         cout << "question added successfully" << endl;
                     }
                     break;
-                    case '3':
+
+                    case 3:
                         cout << "admin logout" << endl;
                         break;
                     default:
                         cout << "invalid choice, try again" << endl;
                     }
-                } while (adminChoice != '3');
+                } while (adminSelect != 3);
             }
-            else  cout << "Admin login failed. Incorrect password" << endl;
+            else  cout << "admin login failed, incorrect password" << endl;
         }
         break;
-        case '4':
+        case 4:
             cout << "goodbye!" << endl;
             break;
         default:
             cout << "invalid choice, try again" << endl;
         }
 
-    } while (choice != '4');
+    } while (select != '4');
 
     return 0;
 }
